@@ -17,37 +17,28 @@ public class Window : Control
         _childControls = new ControlLinkedList();
     }
 
-    internal void StartInput()
+    private bool _activeInput;
+
+    public void StartInput()
     {
+        _activeInput = true;
         _childControls.FocusFirst();
 
-        ConsoleKeyInfo? controlExitKeyInfo = null;
-
-        while (true)
+        while (_activeInput)
         {
-            ConsoleKeyInfo keyInfo;
-
-            if (controlExitKeyInfo == null)
-                keyInfo = Console.ReadKey(true);
-            else
-            {
-                keyInfo = (ConsoleKeyInfo) controlExitKeyInfo;
-                controlExitKeyInfo = null;
-            }
+            var keyInfo = _childControls.HandleConsoleInput();
 
             if (keyInfo.Key == ConsoleKey.Escape)
                 return;
 
-            if (!_childControls.HasActiveControl)
-                continue;
-
-            var handled = HandleCommandKeys(keyInfo);
-
-            if (!handled)
-            {
-                controlExitKeyInfo = _childControls.KeyPressed(keyInfo);
-            }
+            HandleCommandKeys(keyInfo);
         }
+    }
+
+    public void Close()
+    {
+        Hide();
+        _activeInput = false;
     }
 
     private bool HandleCommandKeys(ConsoleKeyInfo keyInfo)
@@ -74,35 +65,6 @@ public class Window : Control
         return true;
     }
 
-    //internal void WaitForButtonClick()
-    //{
-    //    while (true)
-    //    {
-    //        var buttonClicked = false;
-    //        var keyInfo = Console.ReadKey(true);
-
-    //        if (keyInfo.Key == ConsoleKey.Escape)
-    //            return;
-
-    //        foreach(var control in ChildControls)
-    //        {
-    //            var button = control as Button;
-
-    //            Debug.Assert(button != null, nameof(button) + " != null");
-
-    //            if(button.Key == keyInfo.KeyChar)
-    //            {
-    //                button.Click();
-    //                buttonClicked = true;
-    //                break;
-    //            }
-    //        }
-
-    //        if(!buttonClicked)
-    //            Console.Beep();
-    //    }
-    //}
-
     public void AddControl(Control control)
     {
         control.AdjustPosition(Left, Top);
@@ -128,6 +90,11 @@ public class Window : Control
 
         Console.SetCursorPosition(Left, Top + Height - 1);
         Console.WriteLine(bottomLine);
+    }
+
+    public override void Show()
+    {
+        base.Show();
 
         _childControls.Show();
     }

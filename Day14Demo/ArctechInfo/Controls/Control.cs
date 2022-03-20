@@ -1,4 +1,5 @@
 ﻿using Day14Demo.ArctechInfo.Exception;
+using Day14Demo.ArctechInfo.Utilities;
 
 namespace Day14Demo.ArctechInfo.Controls;
 
@@ -7,7 +8,7 @@ public abstract class Control
     protected int Left, Top, Width, Height;
     protected ConsoleColor ForeColor, BackColor;
     public bool CanFocus { get; protected set; } = true;
-
+    
     /// <summary>
     /// 
     /// </summary>
@@ -42,10 +43,10 @@ public abstract class Control
         Console.SetCursorPosition(Left, Top);
     }
 
-    public void Show()
+    public virtual void Show()
     {
         Console.SetCursorPosition(Left, Top);
-        SetConsoleColor();
+        SendColorToConsole();
 
         ShowBody();
 
@@ -55,27 +56,32 @@ public abstract class Control
     public void Hide()
     {
         Console.SetCursorPosition(Left, Top);
-        SetConsoleColor(ConsoleColor.Black, ConsoleColor.Black);
+        SendColorToConsole(ConsoleColor.Black, ConsoleColor.Black);
 
         ShowBody();
 
         Console.ResetColor();
     }
 
-    public virtual ConsoleKeyInfo? SendKey(ConsoleKeyInfo keyInfo)
+    public virtual ConsoleKeyInfo HandleConsoleInput()
     {
-        // Default action of control is to ignore keyStrokes
-        // If required override in child classes
-        return null;
+        // Label does not handle keyboard input so ignore this method
+        return ConsoleHelper.DefaultKeyInfo;
     }
 
-    public static void SetConsoleColor(ConsoleColor foreColor, ConsoleColor backColor)
+    public void SetColor(ConsoleColor foreColor, ConsoleColor backColor)
+    {
+        ForeColor = foreColor;
+        BackColor = backColor;
+    }
+
+    public static void SendColorToConsole(ConsoleColor foreColor, ConsoleColor backColor)
     {
         Console.ForegroundColor = foreColor;
         Console.BackgroundColor = backColor;
     }
 
-    public void SetConsoleColor()
+    public void SendColorToConsole()
     {
         Console.ForegroundColor = ForeColor;
         Console.BackgroundColor = BackColor;

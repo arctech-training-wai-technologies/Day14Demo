@@ -3,73 +3,88 @@
 public class TextBox : Control
 {
     private const string ValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-=[];',.\"!@#$%^&*()_+{}:<>? ";
-    
+
     private static readonly ConsoleKey[] ExitKeys =
     {
         ConsoleKey.UpArrow, ConsoleKey.DownArrow,
         ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Tab
     };
 
-    private readonly char[] _characters;
-    public string Text => new(_characters);
+    public string Text { get; set; }
 
-    public TextBox(int left, int top, int width) : 
+    public TextBox(int left, int top, int width) :
         base(left, top, width)
     {
-        _characters = new char[width];
-
-        for (var i = 0; i < _characters.Length; i++)
-        {
-            _characters[i] = ' ';
-        }
-
         ForeColor = ConsoleColor.White;
         BackColor = ConsoleColor.Magenta;
     }
 
     protected override void ShowBody()
     {
-        Console.Write(Text);
+        Console.Write(DisplayText);
     }
 
-    public override ConsoleKeyInfo? SendKey(ConsoleKeyInfo keyInfo)
+    private string DisplayText
     {
-        SetConsoleColor();
+        get
+        {
+            var text = Text;
+
+            if (string.IsNullOrEmpty(text))
+                text = "";
+            else if (text.Length > Width)
+                text = text[..Width];
+
+            return text.PadRight(Width);
+        }
+    }
+
+    public override ConsoleKeyInfo HandleConsoleInput()
+    {
+        SendColorToConsole();
 
         TextBoxCursor textBoxCursor = new();
 
+        var characters = DisplayText.ToCharArray();
+
         while (true)
         {
+            Console.SetCursorPosition(Left + textBoxCursor, Top);
+            var keyInfo = Console.ReadKey(true);
+
             if (textBoxCursor < Width && ValidChars.Contains(keyInfo.KeyChar))
             {
-                _characters[textBoxCursor++] = keyInfo.KeyChar;
+                characters[textBoxCursor++] = keyInfo.KeyChar;
                 Console.Write(keyInfo.KeyChar);
             }
-            else if (keyInfo.Key == ConsoleKey.LeftArrow)
-            {
-                textBoxCursor.MoveLeft();
-            }
-            else if (keyInfo.Key == ConsoleKey.RightArrow)
-            {
-                textBoxCursor.MoveRight();
-            }
-            else if (textBoxCursor > 0 && keyInfo.Key == ConsoleKey.Backspace)
-            {
-                _characters[--textBoxCursor] = ' ';
-                Console.Write("\b ");
-            }
-            else if (ExitKeys.Contains(keyInfo.Key))
-                break;
-            else
-                Console.Beep();
+            else switch (keyInfo.Key)
+                {
+                    case ConsoleKey.LeftArrow:
+                        textBoxCursor.MoveLeft();
+                        break;
+                    case ConsoleKey.RightArrow:
+                        textBoxCursor.MoveRight();
+                        break;
+                    default:
+                        {
+                            if (textBoxCursor > 0 && keyInfo.Key == ConsoleKey.Backspace)
+                            {
+                                characters[--textBoxCursor] = ' ';
+                                Console.Write("\b ");
+                            }
+                            else if (ExitKeys.Contains(keyInfo.Key))
+                            {
+                                Text = new string(characters).TrimEnd();
+                                Console.ResetColor();
+                                return keyInfo;
+                            }
+                            else
+                                Console.Beep();
 
-            Console.SetCursorPosition(Left + textBoxCursor, Top);
-            keyInfo = Console.ReadKey(true);
+                            break;
+                        }
+                }
         }
-        
-        Console.ResetColor();
-
-        return keyInfo;
     }
 
     public class TextBoxCursor
@@ -82,14 +97,24 @@ public class TextBox : Control
 
         public static TextBoxCursor operator ++(TextBoxCursor textBoxCursor)
         {
-            textBoxCursor._inputTextLength = ++textBoxCursor._cursorPosition;
-            return textBoxCursor;
+            var newTextBoxCursor = new TextBoxCursor
+            {
+                _cursorPosition = textBoxCursor._cursorPosition + 1,
+                _inputTextLength = textBoxCursor._inputTextLength
+            };
+
+            return newTextBoxCursor;
         }
 
         public static TextBoxCursor operator --(TextBoxCursor textBoxCursor)
         {
-            textBoxCursor._inputTextLength = --textBoxCursor._cursorPosition;
-            return textBoxCursor;
+            var newTextBoxCursor = new TextBoxCursor
+            {
+                _cursorPosition = textBoxCursor._cursorPosition - 1,
+                _inputTextLength = textBoxCursor._inputTextLength
+            };
+
+            return newTextBoxCursor;
         }
 
         public void MoveLeft()

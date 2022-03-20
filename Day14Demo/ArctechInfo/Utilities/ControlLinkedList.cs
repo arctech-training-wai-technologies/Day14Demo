@@ -8,11 +8,6 @@ public class ControlLinkedList
 
     private readonly LinkedList<Control> _childControls;
 
-    //private IEnumerable<Button> Buttons =>
-    //    _childControls
-    //        .Where(c => c.GetType() == typeof(Button))
-    //        .Select(c => (Button)c);
-
     public bool HasActiveControl => _selectedControlNode != null;
 
     public ControlLinkedList()
@@ -44,9 +39,9 @@ public class ControlLinkedList
         _selectedControlNode?.Value.Focus();
     }
 
-    public ConsoleKeyInfo? KeyPressed(ConsoleKeyInfo keyInfo)
+    public ConsoleKeyInfo HandleConsoleInput()
     {
-        return _selectedControlNode?.Value.SendKey(keyInfo);
+        return _selectedControlNode == null ? ConsoleHelper.DefaultKeyInfo : _selectedControlNode.Value.HandleConsoleInput();
     }
 
     public void Add(Control control)

@@ -7,7 +7,7 @@ public class Label : Control
     public Label(string text, int left, int top, int width = 0) : 
         base(left, top, width)
     {
-        Text = text;
+        Text = width == 0 ? text : text.PadRight(width, ' ');
         CanFocus = false;
     }
 
