@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Day14Demo.ArctechInfo.Controls;
+﻿using Day14Demo.ArctechInfo.Controls;
 using Day14Demo.ArctechInfo.Utilities;
 
 namespace Day14Demo.ArctechInfo;

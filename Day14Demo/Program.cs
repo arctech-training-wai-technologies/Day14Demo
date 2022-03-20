@@ -2,7 +2,7 @@
 
 using Day14Demo.WaiTech;
 
-var resumeForm = new ResumeForm("Wai Tech Resume Application Form", 1, 1);
+var resumeForm = new ResumeForm("Wai Tech Resume Application Form", 10, 4);
 resumeForm.Show();
 resumeForm.StartInput();
 

@@ -10,7 +10,7 @@ public class TextBox : Control
         ConsoleKey.Enter, ConsoleKey.Escape, ConsoleKey.Tab
     };
 
-    public string Text { get; set; }
+    public string Text { get; set; } = null!;
 
     public TextBox(int left, int top, int width) :
         base(left, top, width)
@@ -58,32 +58,32 @@ public class TextBox : Control
                 Console.Write(keyInfo.KeyChar);
             }
             else switch (keyInfo.Key)
+            {
+                case ConsoleKey.LeftArrow:
+                    textBoxCursor.MoveLeft();
+                    break;
+                case ConsoleKey.RightArrow:
+                    textBoxCursor.MoveRight();
+                    break;
+                default:
                 {
-                    case ConsoleKey.LeftArrow:
-                        textBoxCursor.MoveLeft();
-                        break;
-                    case ConsoleKey.RightArrow:
-                        textBoxCursor.MoveRight();
-                        break;
-                    default:
-                        {
-                            if (textBoxCursor > 0 && keyInfo.Key == ConsoleKey.Backspace)
-                            {
-                                characters[--textBoxCursor] = ' ';
-                                Console.Write("\b ");
-                            }
-                            else if (ExitKeys.Contains(keyInfo.Key))
-                            {
-                                Text = new string(characters).TrimEnd();
-                                Console.ResetColor();
-                                return keyInfo;
-                            }
-                            else
-                                Console.Beep();
+                    if (textBoxCursor > 0 && keyInfo.Key == ConsoleKey.Backspace)
+                    {
+                        characters[--textBoxCursor] = ' ';
+                        Console.Write("\b ");
+                    }
+                    else if (ExitKeys.Contains(keyInfo.Key))
+                    {
+                        Text = new string(characters).TrimEnd();
+                        Console.ResetColor();
+                        return keyInfo;
+                    }
+                    else
+                        Console.Beep();
 
-                            break;
-                        }
+                    break;
                 }
+            }
         }
     }
 
@@ -97,10 +97,15 @@ public class TextBox : Control
 
         public static TextBoxCursor operator ++(TextBoxCursor textBoxCursor)
         {
+            return GetTextBoxCursor(textBoxCursor._cursorPosition + 1);
+        }
+
+        private static TextBoxCursor GetTextBoxCursor(int newPosition)
+        {
             var newTextBoxCursor = new TextBoxCursor
             {
-                _cursorPosition = textBoxCursor._cursorPosition + 1,
-                _inputTextLength = textBoxCursor._inputTextLength
+                _cursorPosition = newPosition,
+                _inputTextLength = newPosition
             };
 
             return newTextBoxCursor;
@@ -108,13 +113,7 @@ public class TextBox : Control
 
         public static TextBoxCursor operator --(TextBoxCursor textBoxCursor)
         {
-            var newTextBoxCursor = new TextBoxCursor
-            {
-                _cursorPosition = textBoxCursor._cursorPosition - 1,
-                _inputTextLength = textBoxCursor._inputTextLength
-            };
-
-            return newTextBoxCursor;
+            return GetTextBoxCursor(textBoxCursor._cursorPosition - 1);
         }
 
         public void MoveLeft()

@@ -1,12 +1,12 @@
-﻿using System.Diagnostics;
-using Day14Demo.ArctechInfo;
+﻿using Day14Demo.ArctechInfo;
 using Day14Demo.ArctechInfo.Controls;
 
 namespace Day14Demo.WaiTech;
 
 internal class ResumeForm : Window
 {
-    private const string FilePath = @"C:\test\WorldLineData.txt";
+    private const string Heading = "FirstName,LastName,Age,Education\n";
+    private const string FilePath = @"C:\test\WorldLineData.csv";
 
     private readonly Label _labelFirstName, _labelLastName, _labelAge, _labelEducation;
     private readonly TextBox _textBoxFirstName, _textBoxLastName, _textBoxAge, _textBoxEducation;
@@ -29,10 +29,10 @@ internal class ResumeForm : Window
         _labelEducation = new Label("Education:", 45, 4);
         _textBoxEducation = new TextBox(58, 4, 40);
 
-        _buttonSave = new Button("Save Resume", 10, 6);
+        _buttonSave = new Button("Save Resume", 75, 16);
         _buttonSave.OnClicked += ButtonSaveOnOnClicked;
         
-        _buttonCancel = new Button("Cancel", 40, 6);
+        _buttonCancel = new Button("Cancel", 89, 16);
         _buttonCancel.OnClicked += ButtonCancelOnOnClicked;
 
         _labelStatus = new Label("Resume Form Initialized. Please enter your Resume.", 1, 18, 98);
@@ -68,22 +68,19 @@ internal class ResumeForm : Window
 
     private void ButtonSaveOnOnClicked(object? sender, EventArgs e)
     {
-        var data = $"{_textBoxFirstName.Text},{_textBoxLastName.Text},{_textBoxAge.Text},{_textBoxEducation.Text}";
+        var data = $"{_textBoxFirstName.Text},{_textBoxLastName.Text},{_textBoxAge.Text},{_textBoxEducation.Text}\n";
 
         if (!File.Exists(FilePath))
-        {
-            var heading = "FirstName,LastName,Age,Education\n";
-            File.WriteAllText(FilePath, heading);
-        }
+            File.WriteAllText(FilePath, Heading);
 
         try
         {
             File.AppendAllText(FilePath, data);
-            _labelStatus.Text = $"File successfully saved at {FilePath}\n";
+            _labelStatus.Text = $"File successfully saved at {FilePath}";
         }
         catch (Exception exception)
         {
-            _labelStatus.Text = $"Error Saving File. {exception.Message}\n";
+            _labelStatus.Text = $"Error Saving File. {exception.Message}";
         }
 
         _labelStatus.Show();

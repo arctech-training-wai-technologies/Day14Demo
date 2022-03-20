@@ -8,8 +8,6 @@ public class ControlLinkedList
 
     private readonly LinkedList<Control> _childControls;
 
-    public bool HasActiveControl => _selectedControlNode != null;
-
     public ControlLinkedList()
     {
         _childControls = new LinkedList<Control>();
